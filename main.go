@@ -10,7 +10,10 @@ func main() {
 	deck := game.NewDeck()
 	card1, _ := deck.Pop()
 	card2, _ := deck.Pop()
-	startingHand := game.HoleCards{card1, card2}
+	startingHand := []game.Card{}
+	fmt.Println(startingHand)
+	startingHand = append(startingHand, card1)
+	startingHand = append(startingHand, card2)
 	fmt.Println(
 		player.NewPlayer(
 			"mitchell-lai",

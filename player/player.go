@@ -8,7 +8,7 @@ import (
 type Player struct {
 	username string
 	stack    float64
-	hand     game.HoleCards
+	hand     []game.Card
 }
 
 func (player Player) String() string {
@@ -19,6 +19,6 @@ func (player Player) String() string {
 		"Hand: " + hand + "\n"
 }
 
-func NewPlayer(username string, buyIn float64, hand game.HoleCards) Player {
+func NewPlayer(username string, buyIn float64, hand []game.Card) Player {
 	return Player{username, buyIn, hand}
 }
