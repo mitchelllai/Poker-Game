@@ -1,48 +1,16 @@
 package game
 
-import (
-	"fmt"
-)
+import "fmt"
 
 type Card struct {
-	Rank uint8
-	Suit uint8
+	Rank RankT
+	Suit SuitT
 }
 
-func NewCard(rank uint8, suit uint8) Card {
-	return Card{rank, suit}
-}
+// func NewCard(rank RankT, suit SuitT) Card {
+// 	return Card{rank, suit}
+// }
 
 func (card Card) String() string {
-	var rank, suit string
-
-	switch card.Rank {
-	case 0:
-		rank = ""
-	case JACK:
-		rank = "J"
-	case QUEEN:
-		rank = "Q"
-	case KING:
-		rank = "K"
-	case ACE:
-		rank = "A"
-	default:
-		rank = fmt.Sprint(card.Rank + 1)
-	}
-
-	switch card.Suit {
-	case 0:
-		suit = ""
-	case SPADE:
-		suit = "♠"
-	case HEART:
-		suit = "♥"
-	case CLUB:
-		suit = "♣"
-	case DIAMOND:
-		suit = "♦"
-	}
-
-	return rank + suit
+	return fmt.Sprint(card.Rank) + fmt.Sprint(card.Suit)
 }

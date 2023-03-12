@@ -3,32 +3,48 @@ package main
 import (
 	"fmt"
 	"poker-game/game"
-	"poker-game/player"
 )
 
 func main() {
 	deck := game.NewDeck()
-	card1, _ := deck.Pop()
-	card2, _ := deck.Pop()
-	startingHand := []game.Card{}
-	fmt.Println(startingHand)
-	startingHand = append(startingHand, card1)
-	startingHand = append(startingHand, card2)
-	fmt.Println(
-		player.NewPlayer(
-			"mitchell-lai",
-			999.9998708489189,
-			startingHand,
-		),
-	)
-	card, _ := deck.Pop()
-	fmt.Println(card)
-	card, _ = deck.Pop()
-	fmt.Println(card)
-	card, _ = deck.Pop()
-	fmt.Println(card)
-	card, _ = deck.Pop()
-	fmt.Println(card)
-	card, _ = deck.Pop()
-	fmt.Println(card)
+
+	A := &game.Player{
+		Username: "P1",
+		Stack:    100,
+		Hand:     []game.Card{deck.Pop(), deck.Pop()},
+	}
+
+	B := &game.Player{
+		Username: "P2",
+		Stack:    100,
+		Hand:     []game.Card{deck.Pop(), deck.Pop()},
+	}
+
+	C := &game.Player{
+		Username: "P3",
+		Stack:    100,
+		Hand:     []game.Card{deck.Pop(), deck.Pop()},
+	}
+
+	D := &game.Player{
+		Username: "P4",
+		Stack:    100,
+		Hand:     []game.Card{deck.Pop(), deck.Pop()},
+	}
+
+	E := &game.Player{
+		Username: "P5",
+		Stack:    100,
+		Hand:     []game.Card{deck.Pop(), deck.Pop()},
+	}
+
+	F := &game.Player{
+		Username: "P6",
+		Stack:    100,
+		Hand:     []game.Card{deck.Pop(), deck.Pop()},
+	}
+
+	table := game.NewTable(1, 2, []*game.Player{A, B, C, D, E, F})
+
+	fmt.Println(table)
 }
