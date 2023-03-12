@@ -1,161 +1,135 @@
 package game
 
 import (
-	"errors"
 	"sort"
 )
 
-func calcHighestRankWithCount(cards []Card, exclude RankT, count uint8) (RankT, error) {
+func calcHighestRankWithCount(cards []Card, exclude Rank, count uint8) Rank {
 	maxRank := NO_RANK
-	seen := map[RankT]uint8{}
+	seen := map[Rank]uint8{}
 	for _, card := range cards {
-		seen[card.Rank]++
-		if seen[card.Rank] >= count &&
-			card.Rank > maxRank &&
-			card.Rank != exclude {
-			maxRank = card.Rank
-		}
-	}
-	if maxRank == NO_RANK {
-		return maxRank, errors.New("no rank in cards have sufficient count")
-	}
-	return maxRank, nil
-}
-
-func calcHighestCard(cards []Card) RankT {
-	maxRank := NO_RANK
-	for _, card := range cards {
-		if card.Rank > maxRank {
-			maxRank = card.Rank
+		seen[card.rank]++
+		if seen[card.rank] >= count &&
+			card.rank > maxRank &&
+			card.rank != exclude {
+			maxRank = card.rank
 		}
 	}
 	return maxRank
 }
 
-func calcHighestPair(cards []Card) (RankT, error) {
-	maxRank, err := calcHighestRankWithCount(cards, NO_RANK, 2)
-	if err != nil {
-		return maxRank, errors.New("no pair found")
+func calcHighestCard(cards []Card) Rank {
+	maxRank := NO_RANK
+	for _, card := range cards {
+		if card.rank > maxRank {
+			maxRank = card.rank
+		}
 	}
-	return maxRank, nil
+	return maxRank
 }
 
-func calcHighestTwoPair(cards []Card) (RankT, RankT, error) {
+func calcHighestPair(cards []Card) Rank {
+	return calcHighestRankWithCount(cards, NO_RANK, 2)
+}
+
+func calcHighestTwoPair(cards []Card) (Rank, Rank) {
 	firstRank := NO_RANK
-	if rank, err := calcHighestRankWithCount(cards, NO_RANK, 2); err != nil {
-		return NO_RANK, NO_RANK, errors.New("no two pair found")
+	if rank := calcHighestRankWithCount(cards, NO_RANK, 2); rank == NO_RANK {
+		return NO_RANK, NO_RANK
 	} else {
 		firstRank = rank
 	}
 
 	secondRank := NO_RANK
-	if rank, err := calcHighestRankWithCount(cards, firstRank, 2); err != nil {
-		return NO_RANK, NO_RANK, errors.New("no two pair found")
+	if rank := calcHighestRankWithCount(cards, firstRank, 2); rank == NO_RANK {
+		return NO_RANK, NO_RANK
 	} else {
 		secondRank = rank
 	}
 
-	return firstRank, secondRank, nil
+	return firstRank, secondRank
 }
 
-func calcHighestThreeOfAKind(cards []Card) (RankT, error) {
-	maxRank, err := calcHighestRankWithCount(cards, NO_RANK, 3)
-	if err != nil {
-		return maxRank, errors.New("no three of a kind found")
-	}
-	return maxRank, nil
+func calcHighestThreeOfAKind(cards []Card) Rank {
+	return calcHighestRankWithCount(cards, NO_RANK, 3)
 }
 
-func calcHighestStraight(cards []Card) (RankT, error) {
+func calcHighestStraight(cards []Card) Rank {
 	sort.Slice(cards, func(i, j int) bool {
-		return cards[i].Rank < cards[j].Rank
+		return cards[i].rank < cards[j].rank
 	})
 	maxRank := NO_RANK
+	cardsLen := len(cards) - 1
 	increasingCount := 0
-	if cards[0].Rank == TWO && cards[len(cards)-1].Rank == ACE {
+	if cards[0].rank == TWO && cards[cardsLen].rank == ACE {
 		increasingCount++
 	}
 	for i, card := range cards[1:] {
-		if card.Rank == cards[i].Rank {
+		if card.rank == cards[i].rank {
 			continue
 		}
-		if card.Rank == cards[i].Rank+1 {
+		if card.rank == cards[i].rank+1 {
 			increasingCount++
 		} else {
 			increasingCount = 0
 		}
 		if increasingCount >= 4 {
-			maxRank = card.Rank
+			maxRank = card.rank
 		}
 	}
-	if maxRank == NO_RANK {
-		return maxRank, errors.New("no straight found")
-	}
-	return maxRank, nil
+	return maxRank
 }
 
-func calcHighestFlush(cards []Card) (SuitT, RankT, error) {
+func calcHighestFlush(cards []Card) Rank {
 	maxRank := NO_RANK
-	flushSuit := NO_SUIT
-	seen := map[SuitT]*struct {
+	seen := map[Suit]*struct {
 		count uint8
-		rank  RankT
+		rank  Rank
 	}{}
 	for _, card := range cards {
-		if card.Rank > seen[card.Suit].rank {
-			seen[card.Suit].rank = card.Rank
+		if card.rank > seen[card.suit].rank {
+			seen[card.suit].rank = card.rank
 		}
-		seen[card.Suit].count++
-		if seen[card.Suit].count >= 5 {
-			maxRank = seen[card.Suit].rank
-			flushSuit = card.Suit
+		seen[card.suit].count++
+		if seen[card.suit].count >= 5 {
+			maxRank = seen[card.suit].rank
 		}
 	}
-	if flushSuit == NO_SUIT {
-		return flushSuit, maxRank, errors.New("no flush found")
-	}
-	return flushSuit, maxRank, nil
+	return maxRank
 }
 
-func calcHighestFullHouse(cards []Card) (RankT, RankT, error) {
+func calcHighestFullHouse(cards []Card) (Rank, Rank) {
 	firstRank := NO_RANK
-	if rank, err := calcHighestRankWithCount(cards, NO_RANK, 3); err != nil {
-		return NO_RANK, NO_RANK, errors.New("no full house found")
+	if rank := calcHighestRankWithCount(cards, NO_RANK, 3); rank == NO_RANK {
+		return NO_RANK, NO_RANK
 	} else {
 		firstRank = rank
 	}
 
 	secondRank := NO_RANK
-	if rank, err := calcHighestRankWithCount(cards, firstRank, 2); err != nil {
-		return NO_RANK, NO_RANK, errors.New("no full house found")
+	if rank := calcHighestRankWithCount(cards, firstRank, 2); rank == NO_RANK {
+		return NO_RANK, NO_RANK
 	} else {
 		secondRank = rank
 	}
 
-	return firstRank, secondRank, nil
+	return firstRank, secondRank
 }
 
-func calcHighestFourOfAKind(cards []Card) (RankT, error) {
-	maxRank, err := calcHighestRankWithCount(cards, NO_RANK, 4)
-	if err != nil {
-		return maxRank, errors.New("no four of a kind found")
-	}
-	return maxRank, nil
+func calcHighestFourOfAKind(cards []Card) Rank {
+	return calcHighestRankWithCount(cards, NO_RANK, 4)
 }
 
-func calcHighestStraightFlush(cards []Card) (RankT, error) {
+func calcHighestStraightFlush(cards []Card) Rank {
 	maxRank := NO_RANK
-	suitMap := map[SuitT][]Card{}
+	suitMap := map[Suit][]Card{}
 	for _, card := range cards {
-		suitMap[card.Suit] = append(suitMap[card.Suit], card)
+		suitMap[card.suit] = append(suitMap[card.suit], card)
 	}
 	for _, cardSlice := range suitMap {
-		if rank, err := calcHighestStraight(cardSlice); err == nil && rank > maxRank {
+		if rank := calcHighestStraight(cardSlice); rank > maxRank {
 			maxRank = rank
 		}
 	}
-	if maxRank == NO_RANK {
-		return NO_RANK, errors.New("no straight flush found")
-	}
-	return maxRank, nil
+	return maxRank
 }

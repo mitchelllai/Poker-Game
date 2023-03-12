@@ -3,14 +3,10 @@ package game
 import "fmt"
 
 type Card struct {
-	Rank RankT
-	Suit SuitT
+	rank Rank
+	suit Suit
 }
 
-// func NewCard(rank RankT, suit SuitT) Card {
-// 	return Card{rank, suit}
-// }
-
 func (card Card) String() string {
-	return fmt.Sprint(card.Rank) + fmt.Sprint(card.Suit)
+	return fmt.Sprint(card.rank) + fmt.Sprint(card.suit)
 }

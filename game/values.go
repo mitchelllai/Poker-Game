@@ -2,10 +2,10 @@ package game
 
 import "fmt"
 
-type RankT uint8
+type Rank uint8
 
 const (
-	NO_RANK RankT = iota
+	NO_RANK Rank = iota
 	TWO
 	THREE
 	FOUR
@@ -21,7 +21,7 @@ const (
 	ACE
 )
 
-func (rank RankT) String() string {
+func (rank Rank) String() string {
 	switch rank {
 	case 0:
 		return ""
@@ -38,17 +38,17 @@ func (rank RankT) String() string {
 	}
 }
 
-type SuitT uint8
+type Suit uint8
 
 const (
-	NO_SUIT SuitT = iota
+	NO_SUIT Suit = iota
 	SPADE
 	HEART
 	CLUB
 	DIAMOND
 )
 
-func (suit SuitT) String() string {
+func (suit Suit) String() string {
 	switch suit {
 	case SPADE:
 		return "♠"
@@ -63,10 +63,10 @@ func (suit SuitT) String() string {
 	}
 }
 
-type PositionT uint8
+type Position uint8
 
 const (
-	BB PositionT = iota + 1
+	BB Position = iota + 1
 	SB
 	BTN
 	CO
@@ -74,7 +74,7 @@ const (
 	UTG
 )
 
-func (position PositionT) String() string {
+func (position Position) String() string {
 	switch position {
 	case BB:
 		return "BB"
@@ -93,10 +93,10 @@ func (position PositionT) String() string {
 	}
 }
 
-type HandRankT uint8
+type HandRank uint8
 
 const (
-	HIGH_CARD HandRankT = iota
+	HIGH_CARD HandRank = iota
 	PAIR
 	TWO_PAIR
 	THREE_OF_A_KIND

@@ -8,7 +8,7 @@ type Player struct {
 	Username   string
 	Stack      float32
 	Hand       []Card
-	Position   PositionT
+	Position   Position
 	NextPlayer *Player
 }
 
@@ -20,7 +20,3 @@ func (player Player) String() string {
 		"Position: " + fmt.Sprint(player.Position) + "\n" +
 		"Hand: " + hand + "\n"
 }
-
-// func NewPlayer(username string, buyIn float64 /*position PositionT,*/, hand []Card) Player {
-// 	return Player{username, buyIn /*position,*/, hand}
-// }

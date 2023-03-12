@@ -9,7 +9,7 @@ type Table struct {
 	Id         int
 	SmallBlind float64
 	BigBlind   float64
-	PlayerMap  map[PositionT]*Player
+	PlayerMap  map[Position]*Player
 	Action     *Player
 	Pot        float64
 }
@@ -31,10 +31,10 @@ func NewTable(smallBlind float64, bigBlind float64, players []*Player) *Table {
 	table.Id = rand.Intn(100)
 	table.SmallBlind = smallBlind
 	table.BigBlind = bigBlind
-	table.PlayerMap = map[PositionT]*Player{}
+	table.PlayerMap = map[Position]*Player{}
 	playerCount := len(players)
 	for i, player := range players {
-		position := PositionT(i + 1)
+		position := Position(i + 1)
 		player.Position = position
 		table.PlayerMap[position] = player
 		if i == 0 {

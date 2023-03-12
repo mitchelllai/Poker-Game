@@ -17,9 +17,7 @@ func NewDeck() Deck {
 	cards := mapset.NewSet[Card]()
 	for rank := TWO; rank <= ACE; rank++ {
 		for suit := SPADE; suit <= DIAMOND; suit++ {
-			card := Card{Rank: rank, Suit: suit}
-			// fmt.Println(card)
-			cards.Add(card)
+			cards.Add(Card{rank: rank, suit: suit})
 		}
 	}
 	return Deck{cards}
