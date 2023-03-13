@@ -12,6 +12,7 @@ type Table struct {
 	PlayerMap  map[Position]*Player
 	Action     *Player
 	Pot        float64
+	Community  []Card
 }
 
 func (table Table) String() string {
@@ -19,11 +20,14 @@ func (table Table) String() string {
 	stakes := "Stakes: " + fmt.Sprint(table.SmallBlind) + "/" + fmt.Sprint(table.BigBlind) + "\n\n"
 	players := ""
 	for _, playerPtr := range table.PlayerMap {
-		players += fmt.Sprint(*playerPtr) + "\n"
+		players += fmt.Sprint(*playerPtr)
+		handRank, _ := EvaluateBestHand(append(playerPtr.Hand, table.Community...))
+		players += "Best Hand: " + fmt.Sprint(handRank) + "\n\n"
 	}
+	community := "Community Cards: " + fmt.Sprint(table.Community) + "\n\n"
 	action := "Action on Player " + fmt.Sprint(table.Action.Username) + "\n\n"
 	pot := "Pot: " + fmt.Sprint(table.Pot) + "\n"
-	return id + stakes + players + action + pot
+	return id + stakes + players + community + action + pot
 }
 
 func NewTable(smallBlind float64, bigBlind float64, players []*Player) *Table {

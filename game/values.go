@@ -23,7 +23,7 @@ const (
 
 func (rank Rank) String() string {
 	switch rank {
-	case 0:
+	case NO_RANK:
 		return ""
 	case JACK:
 		return "J"
@@ -105,7 +105,30 @@ const (
 	FULL_HOUSE
 	FOUR_OF_A_KIND
 	STRAIGHT_FLUSH
-	ROYAL_FLUSH
 )
 
-const MAX_PLAYER_COUNT = 6
+func (handRank HandRank) String() string {
+	switch handRank {
+	case HIGH_CARD:
+		return "High Card"
+	case PAIR:
+		return "Pair"
+	case TWO_PAIR:
+		return "Two Pair"
+	case THREE_OF_A_KIND:
+		return "Three of a Kind"
+	case STRAIGHT:
+		return "Straight"
+	case FLUSH:
+		return "Flush"
+	case FULL_HOUSE:
+		return "Full House"
+	case FOUR_OF_A_KIND:
+		return "Four of a Kind"
+	case STRAIGHT_FLUSH:
+		return "Straight Flush"
+	default:
+		return ""
+	}
+
+}

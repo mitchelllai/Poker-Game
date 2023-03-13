@@ -4,6 +4,34 @@ import (
 	"sort"
 )
 
+func EvaluateBestHand(cards []Card) (HandRank, []Rank) {
+	if rank := calcHighestStraightFlush(cards); rank != NO_RANK {
+		return STRAIGHT_FLUSH, []Rank{rank}
+	}
+	if rank := calcHighestFourOfAKind(cards); rank != NO_RANK {
+		return FOUR_OF_A_KIND, []Rank{rank}
+	}
+	if firstRank, secondRank := calcHighestFullHouse(cards); firstRank != NO_RANK {
+		return FULL_HOUSE, []Rank{firstRank, secondRank}
+	}
+	if rank := calcHighestFlush(cards); rank != NO_RANK {
+		return FLUSH, []Rank{rank}
+	}
+	if rank := calcHighestStraight(cards); rank != NO_RANK {
+		return STRAIGHT, []Rank{rank}
+	}
+	if rank := calcHighestThreeOfAKind(cards); rank != NO_RANK {
+		return THREE_OF_A_KIND, []Rank{rank}
+	}
+	if firstRank, secondRank := calcHighestTwoPair(cards); firstRank != NO_RANK {
+		return TWO_PAIR, []Rank{firstRank, secondRank}
+	}
+	if rank := calcHighestPair(cards); rank != NO_RANK {
+		return PAIR, []Rank{rank}
+	}
+	return HIGH_CARD, []Rank{calcHighestCard(cards)}
+}
+
 func calcHighestRankWithCount(cards []Card, exclude Rank, count uint8) Rank {
 	maxRank := NO_RANK
 	seen := map[Rank]uint8{}
@@ -82,18 +110,23 @@ func calcHighestStraight(cards []Card) Rank {
 
 func calcHighestFlush(cards []Card) Rank {
 	maxRank := NO_RANK
-	seen := map[Suit]*struct {
+	seen := map[Suit]struct {
 		count uint8
 		rank  Rank
 	}{}
 	for _, card := range cards {
-		if card.rank > seen[card.suit].rank {
-			seen[card.suit].rank = card.rank
+		count, rank := seen[card.suit].count, seen[card.suit].rank
+		if card.rank > rank {
+			rank = card.rank
 		}
-		seen[card.suit].count++
-		if seen[card.suit].count >= 5 {
-			maxRank = seen[card.suit].rank
+		count++
+		if count >= 5 {
+			maxRank = rank
 		}
+		seen[card.suit] = struct {
+			count uint8
+			rank  Rank
+		}{count, rank}
 	}
 	return maxRank
 }
