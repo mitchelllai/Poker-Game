@@ -26,8 +26,9 @@ func (table Table) String() string {
 	}
 	community := "Community Cards: " + fmt.Sprint(table.Community) + "\n\n"
 	action := "Action on Player " + fmt.Sprint(table.Action.Username) + "\n\n"
-	pot := "Pot: " + fmt.Sprint(table.Pot) + "\n"
-	return id + stakes + players + community + action + pot
+	pot := "Pot: " + fmt.Sprint(table.Pot) + "\n\n"
+	winner := "Winner: " + fmt.Sprint(EvaluateWinner(table).Username) + "\n"
+	return id + stakes + players + community + action + pot + winner
 }
 
 func NewTable(smallBlind float64, bigBlind float64, players []*Player) *Table {
@@ -49,4 +50,16 @@ func NewTable(smallBlind float64, bigBlind float64, players []*Player) *Table {
 	}
 	table.Action = players[playerCount-1]
 	return table
+}
+
+func EvaluateWinner(table Table) *Player {
+	winner := table.Action
+	for _, player := range table.PlayerMap {
+		winnerBestHand, _ := EvaluateBestHand(append(winner.Hand, table.Community...))
+		playerBestHand, _ := EvaluateBestHand(append(player.Hand, table.Community...))
+		if playerBestHand > winnerBestHand {
+			winner = player
+		}
+	}
+	return winner
 }
