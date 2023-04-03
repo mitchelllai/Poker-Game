@@ -55,10 +55,18 @@ func NewTable(smallBlind float64, bigBlind float64, players []*Player) *Table {
 func EvaluateWinner(table Table) *Player {
 	winner := table.Action
 	for _, player := range table.PlayerMap {
-		winnerBestHand, _ := EvaluateBestHand(append(winner.Hand, table.Community...))
-		playerBestHand, _ := EvaluateBestHand(append(player.Hand, table.Community...))
+		winnerBestHand, winnerTieBreaker := EvaluateBestHand(append(winner.Hand, table.Community...))
+		playerBestHand, playerTieBreaker := EvaluateBestHand(append(player.Hand, table.Community...))
 		if playerBestHand > winnerBestHand {
 			winner = player
+		} else if playerBestHand == winnerBestHand {
+			for i := 0; i < len(winnerTieBreaker); i++ {
+				if playerTieBreaker[i] > winnerTieBreaker[i] {
+					winner = player
+					break
+				}
+			}
+
 		}
 	}
 	return winner

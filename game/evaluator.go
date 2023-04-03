@@ -2,14 +2,19 @@ package game
 
 import (
 	"sort"
+
+	mapset "github.com/deckarep/golang-set/v2"
 )
 
+// Function to evaluate the best hand given a slice of Cards.
+// It returns the HandRank and a slice of Ranks used as tie-breakers.
 func EvaluateBestHand(cards []Card) (HandRank, []Rank) {
 	if rank := calcHighestStraightFlush(cards); rank != NO_RANK {
 		return STRAIGHT_FLUSH, []Rank{rank}
 	}
 	if rank := calcHighestFourOfAKind(cards); rank != NO_RANK {
-		return FOUR_OF_A_KIND, []Rank{rank}
+		kicker := calcHighestRankWithCount(cards, mapset.NewSet(rank), 1)
+		return FOUR_OF_A_KIND, []Rank{rank, kicker}
 	}
 	if firstRank, secondRank := calcHighestFullHouse(cards); firstRank != NO_RANK {
 		return FULL_HOUSE, []Rank{firstRank, secondRank}
@@ -21,31 +26,47 @@ func EvaluateBestHand(cards []Card) (HandRank, []Rank) {
 		return STRAIGHT, []Rank{rank}
 	}
 	if rank := calcHighestThreeOfAKind(cards); rank != NO_RANK {
-		return THREE_OF_A_KIND, []Rank{rank}
+		firstKicker := calcHighestRankWithCount(cards, mapset.NewSet(rank), 1)
+		secondKicker := calcHighestRankWithCount(cards, mapset.NewSet(rank, firstKicker), 1)
+		return THREE_OF_A_KIND, []Rank{rank, firstKicker, secondKicker}
 	}
 	if firstRank, secondRank := calcHighestTwoPair(cards); firstRank != NO_RANK {
-		return TWO_PAIR, []Rank{firstRank, secondRank}
+		kicker := calcHighestRankWithCount(cards, mapset.NewSet(firstRank, secondRank), 1)
+		return TWO_PAIR, []Rank{firstRank, secondRank, kicker}
 	}
 	if rank := calcHighestPair(cards); rank != NO_RANK {
-		return PAIR, []Rank{rank}
+		firstKicker := calcHighestRankWithCount(cards, mapset.NewSet(rank), 1)
+		secondKicker := calcHighestRankWithCount(cards, mapset.NewSet(rank, firstKicker), 1)
+		thirdKicker := calcHighestRankWithCount(cards, mapset.NewSet(rank, firstKicker, secondKicker), 1)
+		return PAIR, []Rank{rank, firstKicker, secondKicker, thirdKicker}
 	}
-	return HIGH_CARD, []Rank{calcHighestCard(cards)}
+	rank := calcHighestRankWithCount(cards, mapset.NewSet[Rank](), 1)
+	firstKicker := calcHighestRankWithCount(cards, mapset.NewSet(rank), 1)
+	secondKicker := calcHighestRankWithCount(cards, mapset.NewSet(rank, firstKicker), 1)
+	thirdKicker := calcHighestRankWithCount(cards, mapset.NewSet(rank, firstKicker, secondKicker), 1)
+	fourthKicker := calcHighestRankWithCount(cards, mapset.NewSet(rank, firstKicker, secondKicker, thirdKicker), 1)
+
+	return HIGH_CARD, []Rank{rank, firstKicker, secondKicker, thirdKicker, fourthKicker}
 }
 
-func calcHighestRankWithCount(cards []Card, exclude Rank, count uint8) Rank {
+// Function to calculate the highest Rank given, a slice of Cards, a set of Ranks to exclude, and the count for the Rank.
+// Returns the highest Rank with count.
+func calcHighestRankWithCount(cards []Card, exclude mapset.Set[Rank], count uint8) Rank {
 	maxRank := NO_RANK
 	seen := map[Rank]uint8{}
 	for _, card := range cards {
 		seen[card.rank]++
 		if seen[card.rank] >= count &&
 			card.rank > maxRank &&
-			card.rank != exclude {
+			!exclude.Contains(card.rank) {
 			maxRank = card.rank
 		}
 	}
 	return maxRank
 }
 
+// Function to calculate the high card given a slice of Cards.
+// Returns the Rank of the high card.
 func calcHighestCard(cards []Card) Rank {
 	maxRank := NO_RANK
 	for _, card := range cards {
@@ -56,20 +77,30 @@ func calcHighestCard(cards []Card) Rank {
 	return maxRank
 }
 
+// Function to calculate the highest pair given a slice of Cards.
+// Returns the Rank of the highest pair.
 func calcHighestPair(cards []Card) Rank {
-	return calcHighestRankWithCount(cards, NO_RANK, 2)
+	exclude := mapset.NewSet[Rank]()
+	return calcHighestRankWithCount(cards, exclude, 2)
 }
 
+// Function to calculate the highest two pair given a slice of Cards.
+// Returns the Ranks of both pairs.
 func calcHighestTwoPair(cards []Card) (Rank, Rank) {
+	//Define an empty exclude set.
+	exclude := mapset.NewSet[Rank]()
+
 	firstRank := NO_RANK
-	if rank := calcHighestRankWithCount(cards, NO_RANK, 2); rank == NO_RANK {
+	if rank := calcHighestRankWithCount(cards, exclude, 2); rank == NO_RANK {
 		return NO_RANK, NO_RANK
 	} else {
 		firstRank = rank
 	}
 
+	exclude.Add(firstRank)
+
 	secondRank := NO_RANK
-	if rank := calcHighestRankWithCount(cards, firstRank, 2); rank == NO_RANK {
+	if rank := calcHighestRankWithCount(cards, exclude, 2); rank == NO_RANK {
 		return NO_RANK, NO_RANK
 	} else {
 		secondRank = rank
@@ -79,7 +110,8 @@ func calcHighestTwoPair(cards []Card) (Rank, Rank) {
 }
 
 func calcHighestThreeOfAKind(cards []Card) Rank {
-	return calcHighestRankWithCount(cards, NO_RANK, 3)
+	exclude := mapset.NewSet[Rank]()
+	return calcHighestRankWithCount(cards, exclude, 3)
 }
 
 func calcHighestStraight(cards []Card) Rank {
@@ -132,15 +164,19 @@ func calcHighestFlush(cards []Card) Rank {
 }
 
 func calcHighestFullHouse(cards []Card) (Rank, Rank) {
+	exclude := mapset.NewSet[Rank]()
+
 	firstRank := NO_RANK
-	if rank := calcHighestRankWithCount(cards, NO_RANK, 3); rank == NO_RANK {
+	if rank := calcHighestRankWithCount(cards, exclude, 3); rank == NO_RANK {
 		return NO_RANK, NO_RANK
 	} else {
 		firstRank = rank
 	}
 
+	exclude.Add(firstRank)
+
 	secondRank := NO_RANK
-	if rank := calcHighestRankWithCount(cards, firstRank, 2); rank == NO_RANK {
+	if rank := calcHighestRankWithCount(cards, exclude, 2); rank == NO_RANK {
 		return NO_RANK, NO_RANK
 	} else {
 		secondRank = rank
@@ -150,7 +186,8 @@ func calcHighestFullHouse(cards []Card) (Rank, Rank) {
 }
 
 func calcHighestFourOfAKind(cards []Card) Rank {
-	return calcHighestRankWithCount(cards, NO_RANK, 4)
+	exclude := mapset.NewSet[Rank]()
+	return calcHighestRankWithCount(cards, exclude, 4)
 }
 
 func calcHighestStraightFlush(cards []Card) Rank {
