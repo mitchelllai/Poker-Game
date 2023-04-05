@@ -19,10 +19,12 @@ func (table Table) String() string {
 	id := "Table Id: " + fmt.Sprint(table.Id) + "\n\n"
 	stakes := "Stakes: " + fmt.Sprint(table.SmallBlind) + "/" + fmt.Sprint(table.BigBlind) + "\n\n"
 	players := ""
-	for _, playerPtr := range table.PlayerMap {
-		players += fmt.Sprint(*playerPtr)
-		handRank, _ := EvaluateBestHand(append(playerPtr.Hand, table.Community...))
+	initialAction := table.Action
+	for ok := true; ok; ok = initialAction != table.Action {
+		players += fmt.Sprint(*table.Action)
+		handRank, _ := EvaluateBestHand(append(table.Action.Hand, table.Community...))
 		players += "Best Hand: " + fmt.Sprint(handRank) + "\n\n"
+		table.Action = table.Action.NextPlayer
 	}
 	community := "Community Cards: " + fmt.Sprint(table.Community) + "\n\n"
 	action := "Action on Player " + fmt.Sprint(table.Action.Username) + "\n\n"
