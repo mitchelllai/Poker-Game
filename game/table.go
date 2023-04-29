@@ -29,8 +29,11 @@ func (table Table) String() string {
 	community := "Community Cards: " + fmt.Sprint(table.Community) + "\n\n"
 	action := "Action on Player " + fmt.Sprint(table.Action.Username) + "\n\n"
 	pot := "Pot: " + fmt.Sprint(table.Pot) + "\n\n"
-	winner := "Winner: " + fmt.Sprint(EvaluateWinner(table).Username) + "\n"
-	return id + stakes + players + community + action + pot + winner
+	winners := "Winners: "
+	for _, winner := range EvaluateWinners(table) {
+		winners += winner.Username + " "
+	}
+	return id + stakes + players + community + action + pot + winners
 }
 
 func NewTable(smallBlind float64, bigBlind float64, players []*Player) *Table {
@@ -54,22 +57,33 @@ func NewTable(smallBlind float64, bigBlind float64, players []*Player) *Table {
 	return table
 }
 
-func EvaluateWinner(table Table) *Player {
-	winner := table.Action
-	for _, player := range table.PlayerMap {
-		winnerBestHand, winnerTieBreaker := EvaluateBestHand(append(winner.Hand, table.Community...))
-		playerBestHand, playerTieBreaker := EvaluateBestHand(append(player.Hand, table.Community...))
+func EvaluateWinners(table Table) []*Player {
+	winners := []*Player{table.Action}
+	initialAction := table.Action
+	table.Action = table.Action.NextPlayer
+	for ok := true; ok; ok = initialAction != table.Action {
+		winnerBestHand, winnerTieBreaker := EvaluateBestHand(append(winners[0].Hand, table.Community...))
+		playerBestHand, playerTieBreaker := EvaluateBestHand(append(table.Action.Hand, table.Community...))
 		if playerBestHand > winnerBestHand {
-			winner = player
+			winners = []*Player{table.Action}
 		} else if playerBestHand == winnerBestHand {
-			for i := 0; i < len(winnerTieBreaker); i++ {
+			winnerTieBreakerLength := len(winnerTieBreaker)
+			for i := 0; i < winnerTieBreakerLength; i++ {
+
 				if playerTieBreaker[i] > winnerTieBreaker[i] {
-					winner = player
+					winners = []*Player{table.Action}
 					break
+				}
+
+				if i == winnerTieBreakerLength-1 {
+					fmt.Println(winnerTieBreaker)
+					fmt.Println(playerTieBreaker)
+					winners = append(winners, table.Action)
 				}
 			}
 
 		}
+		table.Action = table.Action.NextPlayer
 	}
-	return winner
+	return winners
 }

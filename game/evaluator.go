@@ -9,27 +9,35 @@ import (
 // Function to evaluate the best hand given a slice of Cards.
 // It returns the HandRank and a slice of Ranks used as tie-breakers.
 func EvaluateBestHand(cards []Card) (HandRank, []Rank) {
+
 	if rank := calcHighestStraightFlush(cards); rank != NO_RANK {
 		return STRAIGHT_FLUSH, []Rank{rank}
 	}
+
 	if rank := calcHighestFourOfAKind(cards); rank != NO_RANK {
 		return FOUR_OF_A_KIND, append([]Rank{rank}, calcKickers(cards, mapset.NewSet(rank), 1)...)
 	}
+
 	if firstRank, secondRank := calcHighestFullHouse(cards); firstRank != NO_RANK {
 		return FULL_HOUSE, []Rank{firstRank, secondRank}
 	}
+
 	if rank := calcHighestFlush(cards); rank != NO_RANK {
 		return FLUSH, []Rank{rank}
 	}
+
 	if rank := calcHighestStraight(cards); rank != NO_RANK {
 		return STRAIGHT, []Rank{rank}
 	}
+
 	if rank := calcHighestThreeOfAKind(cards); rank != NO_RANK {
 		return THREE_OF_A_KIND, append([]Rank{rank}, calcKickers(cards, mapset.NewSet(rank), 2)...)
 	}
+
 	if firstRank, secondRank := calcHighestTwoPair(cards); firstRank != NO_RANK {
 		return TWO_PAIR, append([]Rank{firstRank, secondRank}, calcKickers(cards, mapset.NewSet(firstRank, secondRank), 1)...)
 	}
+
 	if rank := calcHighestPair(cards); rank != NO_RANK {
 		return PAIR, append([]Rank{rank}, calcKickers(cards, mapset.NewSet(rank), 3)...)
 	}
