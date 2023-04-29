@@ -13,8 +13,7 @@ func EvaluateBestHand(cards []Card) (HandRank, []Rank) {
 		return STRAIGHT_FLUSH, []Rank{rank}
 	}
 	if rank := calcHighestFourOfAKind(cards); rank != NO_RANK {
-		kicker := calcHighestRankWithCount(cards, mapset.NewSet(rank), 1)
-		return FOUR_OF_A_KIND, []Rank{rank, kicker}
+		return FOUR_OF_A_KIND, append([]Rank{rank}, calcKickers(cards, mapset.NewSet(rank), 1)...)
 	}
 	if firstRank, secondRank := calcHighestFullHouse(cards); firstRank != NO_RANK {
 		return FULL_HOUSE, []Rank{firstRank, secondRank}
@@ -26,27 +25,29 @@ func EvaluateBestHand(cards []Card) (HandRank, []Rank) {
 		return STRAIGHT, []Rank{rank}
 	}
 	if rank := calcHighestThreeOfAKind(cards); rank != NO_RANK {
-		firstKicker := calcHighestRankWithCount(cards, mapset.NewSet(rank), 1)
-		secondKicker := calcHighestRankWithCount(cards, mapset.NewSet(rank, firstKicker), 1)
-		return THREE_OF_A_KIND, []Rank{rank, firstKicker, secondKicker}
+		return THREE_OF_A_KIND, append([]Rank{rank}, calcKickers(cards, mapset.NewSet(rank), 2)...)
 	}
 	if firstRank, secondRank := calcHighestTwoPair(cards); firstRank != NO_RANK {
-		kicker := calcHighestRankWithCount(cards, mapset.NewSet(firstRank, secondRank), 1)
-		return TWO_PAIR, []Rank{firstRank, secondRank, kicker}
+		return TWO_PAIR, append([]Rank{firstRank, secondRank}, calcKickers(cards, mapset.NewSet(firstRank, secondRank), 1)...)
 	}
 	if rank := calcHighestPair(cards); rank != NO_RANK {
-		firstKicker := calcHighestRankWithCount(cards, mapset.NewSet(rank), 1)
-		secondKicker := calcHighestRankWithCount(cards, mapset.NewSet(rank, firstKicker), 1)
-		thirdKicker := calcHighestRankWithCount(cards, mapset.NewSet(rank, firstKicker, secondKicker), 1)
-		return PAIR, []Rank{rank, firstKicker, secondKicker, thirdKicker}
+		return PAIR, append([]Rank{rank}, calcKickers(cards, mapset.NewSet(rank), 3)...)
 	}
-	rank := calcHighestRankWithCount(cards, mapset.NewSet[Rank](), 1)
-	firstKicker := calcHighestRankWithCount(cards, mapset.NewSet(rank), 1)
-	secondKicker := calcHighestRankWithCount(cards, mapset.NewSet(rank, firstKicker), 1)
-	thirdKicker := calcHighestRankWithCount(cards, mapset.NewSet(rank, firstKicker, secondKicker), 1)
-	fourthKicker := calcHighestRankWithCount(cards, mapset.NewSet(rank, firstKicker, secondKicker, thirdKicker), 1)
 
-	return HIGH_CARD, []Rank{rank, firstKicker, secondKicker, thirdKicker, fourthKicker}
+	return HIGH_CARD, calcKickers(cards, mapset.NewSet[Rank](), 5)
+}
+
+func calcKickers(cards []Card, exclude mapset.Set[Rank], count uint8) []Rank {
+	kickers := []Rank{}
+	prev := NO_RANK
+	for i := uint8(0); i < count; i++ {
+		if prev != NO_RANK {
+			exclude.Add(prev)
+		}
+		prev = calcHighestRankWithCount(cards, exclude, 1)
+		kickers = append(kickers, prev)
+	}
+	return kickers
 }
 
 // Function to calculate the highest Rank given, a slice of Cards, a set of Ranks to exclude, and the count for the Rank.
