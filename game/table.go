@@ -59,31 +59,34 @@ func NewTable(smallBlind float64, bigBlind float64, players []*Player) *Table {
 
 func EvaluateWinners(table Table) []*Player {
 	winners := []*Player{table.Action}
+	bestHandRank, bestHand := EvaluateBestHand(append(table.Action.Hand, table.Community...))
 	initialAction := table.Action
-	table.Action = table.Action.NextPlayer
-	for ok := true; ok; ok = initialAction != table.Action {
-		winnerBestHand, winnerTieBreaker := EvaluateBestHand(append(winners[0].Hand, table.Community...))
-		playerBestHand, playerTieBreaker := EvaluateBestHand(append(table.Action.Hand, table.Community...))
-		if playerBestHand > winnerBestHand {
+	fmt.Print(table.Action.Username + " " + fmt.Sprint(bestHandRank) + ": " + fmt.Sprint(bestHand) + "\n")
+	for ok := true; ok; ok = initialAction != table.Action.NextPlayer {
+		table.Action = table.Action.NextPlayer
+		playerHandRank, playerHand := EvaluateBestHand(append(table.Action.Hand, table.Community...))
+		fmt.Print(table.Action.Username + " " + fmt.Sprint(playerHandRank) + ": " + fmt.Sprint(playerHand) + "\n")
+		if playerHandRank > bestHandRank {
 			winners = []*Player{table.Action}
-		} else if playerBestHand == winnerBestHand {
-			winnerTieBreakerLength := len(winnerTieBreaker)
-			for i := 0; i < winnerTieBreakerLength; i++ {
-
-				if playerTieBreaker[i] > winnerTieBreaker[i] {
+			bestHandRank = playerHandRank
+			bestHand = playerHand
+		} else if playerHandRank == bestHandRank {
+			for i, bestHandCard := range bestHand {
+				if playerHand[i].rank > bestHandCard.rank {
 					winners = []*Player{table.Action}
+					bestHand = playerHand
 					break
 				}
 
-				if i == winnerTieBreakerLength-1 {
-					fmt.Println(winnerTieBreaker)
-					fmt.Println(playerTieBreaker)
+				if playerHand[i].rank < bestHandCard.rank {
+					break
+				}
+
+				if i == len(bestHand)-1 {
 					winners = append(winners, table.Action)
 				}
 			}
-
 		}
-		table.Action = table.Action.NextPlayer
 	}
 	return winners
 }
