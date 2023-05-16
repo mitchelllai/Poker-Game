@@ -18,21 +18,24 @@ type Table struct {
 func (table Table) String() string {
 	id := "Table Id: " + fmt.Sprint(table.Id) + "\n\n"
 	stakes := "Stakes: " + fmt.Sprint(table.SmallBlind) + "/" + fmt.Sprint(table.BigBlind) + "\n\n"
+	community := "Community Cards: " + fmt.Sprint(table.Community) + "\n\n"
+	action := "Action on Player " + fmt.Sprint(table.Action.Username) + "\n\n"
+	pot := "Pot: " + fmt.Sprint(table.Pot) + "\n\n"
+
 	players := ""
 	initialAction := table.Action
 	for ok := true; ok; ok = initialAction != table.Action {
 		players += fmt.Sprint(*table.Action)
-		handRank, _ := EvaluateBestHand(append(table.Action.Hand, table.Community...))
+		handRank, _ := CalcBestHand(append(table.Action.Hand, table.Community...))
 		players += "Best Hand: " + fmt.Sprint(handRank) + "\n\n"
 		table.Action = table.Action.NextPlayer
 	}
-	community := "Community Cards: " + fmt.Sprint(table.Community) + "\n\n"
-	action := "Action on Player " + fmt.Sprint(table.Action.Username) + "\n\n"
-	pot := "Pot: " + fmt.Sprint(table.Pot) + "\n\n"
+
 	winners := "Winners: "
 	for _, winner := range EvaluateWinners(table) {
 		winners += winner.Username + " "
 	}
+
 	return id + stakes + players + community + action + pot + winners
 }
 
@@ -43,35 +46,41 @@ func NewTable(smallBlind float64, bigBlind float64, players []*Player) *Table {
 	table.BigBlind = bigBlind
 	table.PlayerMap = map[Position]*Player{}
 	playerCount := len(players)
+
 	for i, player := range players {
 		position := Position(i + 1)
 		player.Position = position
 		table.PlayerMap[position] = player
+
 		if i == 0 {
 			player.NextPlayer = players[playerCount-1]
 		} else {
 			player.NextPlayer = players[i-1]
 		}
+
 	}
+
 	table.Action = players[playerCount-1]
+
 	return table
 }
 
 func EvaluateWinners(table Table) []*Player {
 	winners := []*Player{table.Action}
-	bestHandRank, bestHand := EvaluateBestHand(append(table.Action.Hand, table.Community...))
+	bestHandRank, bestHand := CalcBestHand(append(table.Action.Hand, table.Community...))
+
 	initialAction := table.Action
-	fmt.Print(table.Action.Username + " " + fmt.Sprint(bestHandRank) + ": " + fmt.Sprint(bestHand) + "\n")
-	for ok := true; ok; ok = initialAction != table.Action.NextPlayer {
-		table.Action = table.Action.NextPlayer
-		playerHandRank, playerHand := EvaluateBestHand(append(table.Action.Hand, table.Community...))
-		fmt.Print(table.Action.Username + " " + fmt.Sprint(playerHandRank) + ": " + fmt.Sprint(playerHand) + "\n")
+	table.Action = table.Action.NextPlayer
+	for ok := true; ok; ok = initialAction != table.Action {
+		playerHandRank, playerHand := CalcBestHand(append(table.Action.Hand, table.Community...))
+
 		if playerHandRank > bestHandRank {
 			winners = []*Player{table.Action}
 			bestHandRank = playerHandRank
 			bestHand = playerHand
 		} else if playerHandRank == bestHandRank {
 			for i, bestHandCard := range bestHand {
+
 				if playerHand[i].rank > bestHandCard.rank {
 					winners = []*Player{table.Action}
 					bestHand = playerHand
@@ -87,6 +96,9 @@ func EvaluateWinners(table Table) []*Player {
 				}
 			}
 		}
+
+		table.Action = table.Action.NextPlayer
 	}
+
 	return winners
 }

@@ -45,7 +45,14 @@ func main() {
 	}
 
 	table := game.NewTable(1, 2, []*game.Player{A, B, C, D, E, F})
-	table.Community = []game.Card{deck.Pop(), deck.Pop(), deck.Pop(), deck.Pop(), deck.Pop()}
+
+	table.Community = []game.Card{
+		deck.Pop(),
+		deck.Pop(),
+		deck.Pop(),
+		deck.Pop(),
+		deck.Pop(),
+	}
 
 	fmt.Println(table)
 }
