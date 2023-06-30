@@ -201,48 +201,6 @@ func calcHighestStraight(cards []Card) []Card {
 	return nil
 }
 
-// func calcHighestStraight(cards []Card) []Card {
-// 	//If the slice of cards contains less than 5 elements, early return nil
-// 	if len(cards) < 5 {
-// 		return nil
-// 	}
-
-// 	//Sort the slice in descending order
-// 	sort.Slice(cards, func(i, j int) bool {
-// 		return cards[i].rank > cards[j].rank
-// 	})
-
-// 	//Initialize a slice with the first element in cards parameter
-// 	cardsOfStraight := []Card{cards[0]}
-
-// 	//Iterate through cards parameter excluding the first element
-// 	for i, card := range cards[1:] {
-// 		//Check if current card is 1 less than previous card
-// 		if card.rank == cards[i].rank-1 {
-// 			cardsOfStraight = append(cardsOfStraight, card)
-// 		} else if card.rank != cards[i].rank {
-// 			cardsOfStraight = []Card{card}
-// 		}
-
-// 		//Check if cardsOfStraight has 5 cards in it
-// 		if len(cardsOfStraight) == 5 {
-// 			return cardsOfStraight
-// 		}
-// 	}
-
-// 	//Account for edge case of 5-high straight
-// 	if cards[len(cards)-1].rank == TWO && cards[0].rank == ACE {
-// 		cardsOfStraight = append(cardsOfStraight, cards[0])
-// 	}
-
-// 	//Check straight condition after accounting for edge case
-// 	if len(cardsOfStraight) == 5 {
-// 		return cardsOfStraight
-// 	}
-
-// 	return nil
-// }
-
 func calcHighestFlush(cards []Card) []Card {
 	if len(cards) < 5 {
 		return nil
