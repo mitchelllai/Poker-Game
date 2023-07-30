@@ -6,6 +6,8 @@ import (
 	mapset "github.com/deckarep/golang-set/v2"
 )
 
+const MaxHandLength = 5
+
 // Calculate the best hand given a slice of Cards.
 // Returns the HandRank and a Card slice representing the winning hand.
 // The order of the cards in the slice is the tie-breaking order.
@@ -100,13 +102,17 @@ func calcKickers(cards []Card, excludeRanks mapset.Set[Rank], kickersLen int) []
 	return nil
 }
 
-// Returns a slice of 5 cards
+// Returns a slice of cards with length up to MaxHandLength
 // where the cards are sorted in tie-breaking order
 func calcHighestCard(cards []Card) []Card {
+	cardsLen := len(cards)
 	sort.Slice(cards, func(i, j int) bool {
 		return cards[i].Rank > cards[j].Rank
 	})
-	return cards[:5]
+	if cardsLen < MaxHandLength {
+		return cards[:cardsLen]
+	}
+	return cards[:MaxHandLength]
 }
 
 func calcHighestPair(cards []Card) []Card {
