@@ -15,9 +15,9 @@ func (deck Deck) Pop() Card {
 
 func NewDeck() Deck {
 	cards := mapset.NewSet[Card]()
-	for rank := TWO; rank <= ACE; rank++ {
-		for suit := SPADE; suit <= DIAMOND; suit++ {
-			cards.Add(Card{rank: rank, suit: suit})
+	for rank := Two; rank <= Ace; rank++ {
+		for suit := Spade; suit <= Diamond; suit++ {
+			cards.Add(Card{Rank: rank, Suit: suit})
 		}
 	}
 	return Deck{cards}

@@ -81,13 +81,13 @@ func EvaluateWinners(table Table) []*Player {
 		} else if playerHandRank == bestHandRank {
 			for i, bestHandCard := range bestHand {
 
-				if playerHand[i].rank > bestHandCard.rank {
+				if playerHand[i].Rank > bestHandCard.Rank {
 					winners = []*Player{table.Action}
 					bestHand = playerHand
 					break
 				}
 
-				if playerHand[i].rank < bestHandCard.rank {
+				if playerHand[i].Rank < bestHandCard.Rank {
 					break
 				}
 

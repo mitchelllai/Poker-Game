@@ -11,38 +11,38 @@ import (
 // The order of the cards in the slice is the tie-breaking order.
 func CalcBestHand(cards []Card) (HandRank, []Card) {
 	if straightFlush := calcHighestStraightFlush(cards); straightFlush != nil {
-		return STRAIGHT_FLUSH, straightFlush
+		return StraightFlush, straightFlush
 	}
 
 	if fourOfAKind := calcHighestFourOfAKind(cards); fourOfAKind != nil {
-		return FOUR_OF_A_KIND, fourOfAKind
+		return FourOfAKind, fourOfAKind
 	}
 
 	if fullHouse := calcHighestFullHouse(cards); fullHouse != nil {
-		return FULL_HOUSE, fullHouse
+		return FullHouse, fullHouse
 	}
 
 	if flush := calcHighestFlush(cards); flush != nil {
-		return FLUSH, flush
+		return Flush, flush
 	}
 
 	if straight := calcHighestStraight(cards); straight != nil {
-		return STRAIGHT, straight
+		return Straight, straight
 	}
 
 	if threeOfAKind := calcHighestThreeOfAKind(cards); threeOfAKind != nil {
-		return THREE_OF_A_KIND, threeOfAKind
+		return ThreeOfAKind, threeOfAKind
 	}
 
 	if twoPair := calcHighestTwoPair(cards); twoPair != nil {
-		return TWO_PAIR, twoPair
+		return TwoPair, twoPair
 	}
 
 	if pair := calcHighestPair(cards); pair != nil {
-		return PAIR, pair
+		return Pair, pair
 	}
 
-	return HIGH_CARD, calcHighestCard(cards)
+	return HighCard, calcHighestCard(cards)
 }
 
 // Returns a map
@@ -52,7 +52,7 @@ func calcCardsOfEachRank(cards []Card) map[Rank][]Card {
 	cardsOfEachRank := map[Rank][]Card{}
 
 	for _, card := range cards {
-		cardsOfEachRank[card.rank] = append(cardsOfEachRank[card.rank], card)
+		cardsOfEachRank[card.Rank] = append(cardsOfEachRank[card.Rank], card)
 	}
 
 	return cardsOfEachRank
@@ -65,7 +65,7 @@ func calcCardsOfEachSuit(cards []Card) map[Suit][]Card {
 	cardsOfEachSuit := map[Suit][]Card{}
 
 	for _, card := range cards {
-		cardsOfEachSuit[card.suit] = append(cardsOfEachSuit[card.suit], card)
+		cardsOfEachSuit[card.Suit] = append(cardsOfEachSuit[card.Suit], card)
 	}
 
 	return cardsOfEachSuit
@@ -80,7 +80,7 @@ func calcKickers(cards []Card, excludeRanks mapset.Set[Rank], kickersLen int) []
 	cardsOfEachRank := calcCardsOfEachRank(cards)
 
 	//Iterate through each rank in descending order.
-	for rank := ACE; rank >= TWO; rank-- {
+	for rank := Ace; rank >= Two; rank-- {
 
 		//If that rank is in cardsOfEachRank
 		//and the rank is not in excludeRanks,
@@ -104,7 +104,7 @@ func calcKickers(cards []Card, excludeRanks mapset.Set[Rank], kickersLen int) []
 // where the cards are sorted in tie-breaking order
 func calcHighestCard(cards []Card) []Card {
 	sort.Slice(cards, func(i, j int) bool {
-		return cards[i].rank > cards[j].rank
+		return cards[i].Rank > cards[j].Rank
 	})
 	return cards[:5]
 }
@@ -112,7 +112,7 @@ func calcHighestCard(cards []Card) []Card {
 func calcHighestPair(cards []Card) []Card {
 	cardsOfEachRank := calcCardsOfEachRank(cards)
 
-	for rank := ACE; rank >= TWO; rank-- {
+	for rank := Ace; rank >= Two; rank-- {
 		if len(cardsOfEachRank[rank]) == 2 {
 			excludeRanks := mapset.NewSet(rank)
 			kickers := calcKickers(cards, excludeRanks, 3)
@@ -131,14 +131,14 @@ func calcHighestTwoPair(cards []Card) []Card {
 	var twoPair []Card
 
 	cardsOfEachRank := calcCardsOfEachRank(cards)
-	for rank := ACE; rank >= TWO; rank-- {
+	for rank := Ace; rank >= Two; rank-- {
 
 		if len(cardsOfEachRank[rank]) == 2 {
 			twoPair = append(twoPair, cardsOfEachRank[rank]...)
 		}
 
 		if len(twoPair) == 4 {
-			excludeRanks := mapset.NewSet(twoPair[0].rank, twoPair[2].rank)
+			excludeRanks := mapset.NewSet(twoPair[0].Rank, twoPair[2].Rank)
 			return append(twoPair, calcKickers(cards, excludeRanks, 1)...)
 		}
 	}
@@ -152,7 +152,7 @@ func calcHighestThreeOfAKind(cards []Card) []Card {
 	}
 
 	cardsOfEachRank := calcCardsOfEachRank(cards)
-	for rank := ACE; rank >= TWO; rank-- {
+	for rank := Ace; rank >= Two; rank-- {
 		if len(cardsOfEachRank[rank]) == 3 {
 			kickers := calcKickers(cards, mapset.NewSet(rank), 2)
 			return append(cardsOfEachRank[rank], kickers...)
@@ -171,10 +171,10 @@ func calcHighestStraight(cards []Card) []Card {
 
 	cardsOfEachRank := calcCardsOfEachRank(cards)
 
-	for rank := ACE; rank >= TWO; rank-- {
+	for rank := Ace; rank >= Two; rank-- {
 		if cardsOfEachRank[rank] != nil {
 			if cardsOfStraight == nil ||
-				rank == cardsOfStraight[len(cardsOfStraight)-1].rank-1 {
+				rank == cardsOfStraight[len(cardsOfStraight)-1].Rank-1 {
 				cardsOfStraight = append(cardsOfStraight, cardsOfEachRank[rank][0])
 			}
 
@@ -182,10 +182,10 @@ func calcHighestStraight(cards []Card) []Card {
 				return cardsOfStraight
 			}
 
-			if rank == TWO && cardsOfEachRank[ACE] != nil {
+			if rank == Two && cardsOfEachRank[Ace] != nil {
 				cardsOfStraight = append(
 					cardsOfStraight,
-					cardsOfEachRank[ACE][0],
+					cardsOfEachRank[Ace][0],
 				)
 			}
 
@@ -210,7 +210,7 @@ func calcHighestFlush(cards []Card) []Card {
 	for _, cardsOfOneSuit := range cardsOfEachSuit {
 		if len(cardsOfOneSuit) >= 5 {
 			sort.Slice(cardsOfOneSuit, func(i, j int) bool {
-				return cardsOfOneSuit[i].rank > cardsOfOneSuit[j].rank
+				return cardsOfOneSuit[i].Rank > cardsOfOneSuit[j].Rank
 			})
 			return cardsOfOneSuit[:5]
 		}
@@ -229,7 +229,7 @@ func calcHighestFullHouse(cards []Card) []Card {
 
 	cardsOfEachRank := calcCardsOfEachRank(cards)
 
-	for rank := ACE; rank >= TWO; rank-- {
+	for rank := Ace; rank >= Two; rank-- {
 		if len(cardsOfEachRank[rank]) == 3 {
 			threeOfAKind = cardsOfEachRank[rank]
 		}
@@ -253,7 +253,7 @@ func calcHighestFourOfAKind(cards []Card) []Card {
 
 	cardsOfEachRank := calcCardsOfEachRank(cards)
 
-	for rank := ACE; rank >= TWO; rank-- {
+	for rank := Ace; rank >= Two; rank-- {
 		if len(cardsOfEachRank[rank]) == 4 {
 			kickers := calcKickers(cards, mapset.NewSet(rank), 1)
 			return append(cardsOfEachRank[rank], kickers...)

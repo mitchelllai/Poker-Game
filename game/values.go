@@ -5,33 +5,33 @@ import "fmt"
 type Rank uint8
 
 const (
-	NO_RANK Rank = iota
-	TWO
-	THREE
-	FOUR
-	FIVE
-	SIX
-	SEVEN
-	EIGHT
-	NINE
-	TEN
-	JACK
-	QUEEN
-	KING
-	ACE
+	NoRank Rank = iota
+	Two
+	Three
+	Four
+	Five
+	Six
+	Seven
+	Eight
+	Nine
+	Ten
+	Jack
+	Queen
+	King
+	Ace
 )
 
 func (rank Rank) String() string {
 	switch rank {
-	case NO_RANK:
+	case NoRank:
 		return ""
-	case JACK:
+	case Jack:
 		return "J"
-	case QUEEN:
+	case Queen:
 		return "Q"
-	case KING:
+	case King:
 		return "K"
-	case ACE:
+	case Ace:
 		return "A"
 	default:
 		return fmt.Sprint(uint8(rank) + 1)
@@ -41,22 +41,22 @@ func (rank Rank) String() string {
 type Suit uint8
 
 const (
-	NO_SUIT Suit = iota
-	SPADE
-	HEART
-	CLUB
-	DIAMOND
+	NoSuit Suit = iota
+	Spade
+	Heart
+	Club
+	Diamond
 )
 
 func (suit Suit) String() string {
 	switch suit {
-	case SPADE:
+	case Spade:
 		return "♠"
-	case HEART:
+	case Heart:
 		return "♥"
-	case CLUB:
+	case Club:
 		return "♣"
-	case DIAMOND:
+	case Diamond:
 		return "♦"
 	default:
 		return ""
@@ -66,27 +66,27 @@ func (suit Suit) String() string {
 type Position uint8
 
 const (
-	BB Position = iota + 1
-	SB
-	BTN
-	CO
-	HJ
-	UTG
+	Bb Position = iota + 1
+	Sb
+	Btn
+	Co
+	Hj
+	Utg
 )
 
 func (position Position) String() string {
 	switch position {
-	case BB:
+	case Bb:
 		return "BB"
-	case SB:
+	case Sb:
 		return "SB"
-	case BTN:
+	case Btn:
 		return "BTN"
-	case CO:
+	case Co:
 		return "CO"
-	case HJ:
+	case Hj:
 		return "HJ"
-	case UTG:
+	case Utg:
 		return "UTG"
 	default:
 		return ""
@@ -96,36 +96,36 @@ func (position Position) String() string {
 type HandRank uint8
 
 const (
-	HIGH_CARD HandRank = iota
-	PAIR
-	TWO_PAIR
-	THREE_OF_A_KIND
-	STRAIGHT
-	FLUSH
-	FULL_HOUSE
-	FOUR_OF_A_KIND
-	STRAIGHT_FLUSH
+	HighCard HandRank = iota
+	Pair
+	TwoPair
+	ThreeOfAKind
+	Straight
+	Flush
+	FullHouse
+	FourOfAKind
+	StraightFlush
 )
 
 func (handRank HandRank) String() string {
 	switch handRank {
-	case HIGH_CARD:
+	case HighCard:
 		return "High Card"
-	case PAIR:
+	case Pair:
 		return "Pair"
-	case TWO_PAIR:
+	case TwoPair:
 		return "Two Pair"
-	case THREE_OF_A_KIND:
+	case ThreeOfAKind:
 		return "Three of a Kind"
-	case STRAIGHT:
+	case Straight:
 		return "Straight"
-	case FLUSH:
+	case Flush:
 		return "Flush"
-	case FULL_HOUSE:
+	case FullHouse:
 		return "Full House"
-	case FOUR_OF_A_KIND:
+	case FourOfAKind:
 		return "Four of a Kind"
-	case STRAIGHT_FLUSH:
+	case StraightFlush:
 		return "Straight Flush"
 	default:
 		return ""
